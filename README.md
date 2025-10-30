@@ -1,0 +1,1 @@
+# CUP-POD-Product-Spec-Validator
