@@ -14,6 +14,7 @@ const totalFailedEl = document.getElementById('totalFailed');
 // Store results
 let validationResults = [];
 let validator;
+let showFailedOnly = false;
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,6 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Set up all event listeners
 function setupEventListeners() {
+    const failedOnlyToggle = document.getElementById('failedOnlyToggle');
+    if (failedOnlyToggle) {
+        failedOnlyToggle.addEventListener('change', (e) => {
+            showFailedOnly = e.target.checked;
+            updateResultsDisplay();
+        });
+    }
+
     fileInput.addEventListener('change', (e) => {
         const files = Array.from(e.target.files).filter(file => 
             file.name.toLowerCase().endsWith('.xml')
@@ -55,6 +64,11 @@ function setupEventListeners() {
 
     clearBtn.addEventListener('click', () => {
         validationResults = [];
+        showFailedOnly = false;
+        const failedOnlyToggle = document.getElementById('failedOnlyToggle');
+        if (failedOnlyToggle) {
+            failedOnlyToggle.checked = false;
+        }
         updateResultsDisplay();
         downloadBtn.disabled = true;
         clearBtn.disabled = true;
@@ -240,15 +254,18 @@ function updateResultsDisplay() {
     }
 
     const summary = calculateSummary();
+    const filteredResults = showFailedOnly 
+        ? validationResults.filter(r => r.validations.some(v => !v.result))
+        : validationResults;
 
     totalFilesEl.textContent = summary.total;
-    totalShowingEl.textContent = summary.showing;
+    totalShowingEl.textContent = filteredResults.length;
     totalPassedEl.textContent = summary.passed;
     totalFailedEl.textContent = summary.failed;
 
     resultsSummary.classList.remove('d-none');
 
-    resultsArea.innerHTML = validationResults
+    resultsArea.innerHTML = filteredResults
         .map((fileResult, index) => {
             const hasErrors = fileResult.validations.some(v => !v.result);
             const displayName = fileResult.isbn || fileResult.fileName;
@@ -400,13 +417,13 @@ async function copyToClipboard(fileResult) {
         const button = document.querySelector(`[data-isbn="${isbn}"]`);
         const originalHTML = button.innerHTML;
         button.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
-        button.classList.remove('btn-outline-light');
-        button.classList.add('btn-success');
+        button.classList.remove('btn-outline-secondary');
+        button.classList.add('btn-outline-success');
         
         setTimeout(() => {
             button.innerHTML = originalHTML;
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-light');
+            button.classList.remove('btn-outline-success');
+            button.classList.add('btn-outline-secondary');
         }, 2000);
     } catch (err) {
         console.error('Failed to copy:', err);
