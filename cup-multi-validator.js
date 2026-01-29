@@ -266,7 +266,8 @@ function updateResultsDisplay() {
     resultsSummary.classList.remove('d-none');
 
     resultsArea.innerHTML = filteredResults
-        .map((fileResult, index) => {
+        .map((fileResult) => {
+            const originalIndex = validationResults.indexOf(fileResult);
             const hasErrors = fileResult.validations.some(v => !v.result);
             const displayName = fileResult.isbn || fileResult.fileName;
             
@@ -280,7 +281,7 @@ function updateResultsDisplay() {
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <button class="btn btn-sm btn-outline-secondary" 
-                                        onclick="copyToClipboard(validationResults[${index}])"
+                                        onclick="copyToClipboard(validationResults[${originalIndex}])"
                                         data-isbn="${escapeHtml(fileResult.isbn)}">
                                     <i class="bi bi-clipboard"></i>
                                 </button>
