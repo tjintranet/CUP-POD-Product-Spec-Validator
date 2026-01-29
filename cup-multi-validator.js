@@ -414,17 +414,21 @@ async function copyToClipboard(fileResult) {
     try {
         await navigator.clipboard.writeText(text);
         
-        const button = document.querySelector(`[data-isbn="${isbn}"]`);
-        const originalHTML = button.innerHTML;
-        button.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
-        button.classList.remove('btn-outline-secondary');
-        button.classList.add('btn-outline-success');
+        const escapedIsbn = escapeHtml(isbn);
+        const button = document.querySelector(`[data-isbn="${escapedIsbn}"]`);
         
-        setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove('btn-outline-success');
-            button.classList.add('btn-outline-secondary');
-        }, 2000);
+        if (button) {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-outline-success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('btn-outline-success');
+                button.classList.add('btn-outline-secondary');
+            }, 2000);
+        }
     } catch (err) {
         console.error('Failed to copy:', err);
         alert('Failed to copy to clipboard. Please try again.');
